@@ -63,6 +63,11 @@ public class TrackPlayer extends ActionBarActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == android.R.id.home) {
+            finish();
+            return true;
+           // onBackPressed();
+            //return true;
         }
 
         return super.onOptionsItemSelected(item);

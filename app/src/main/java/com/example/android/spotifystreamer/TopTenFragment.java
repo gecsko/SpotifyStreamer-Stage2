@@ -56,8 +56,11 @@ public class TopTenFragment extends Fragment {
         Intent intent = getActivity().getIntent();
 
         if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
+            Log.d("hi", "r1");
             mTopTen = intent.getStringExtra(Intent.EXTRA_TEXT);
-        } else {
+
+        } else if (getArguments() != null){
+            Log.d("hi", "r2");
             mTopTen = getArguments().getString("selectedArtistId");
         }
 

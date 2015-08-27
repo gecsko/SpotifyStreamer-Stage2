@@ -49,6 +49,7 @@ public class TrackPlayerFragment extends DialogFragment {
     private ArrayList<HashMap<String, Object>> tracksArray;
     private HashMap<String, Object> trackTable;
     boolean playing;
+    boolean getting;
 
 
     @Override
@@ -120,6 +121,7 @@ public class TrackPlayerFragment extends DialogFragment {
                     secondTime = "0"+secondTime;
                 }
                 textView1.setText(String.valueOf("00:"+secondTime));
+                getting = true;
             }
         });
 
@@ -128,16 +130,18 @@ public class TrackPlayerFragment extends DialogFragment {
 
             @Override
             public void onClick(View v) {
-                mediaPlayer.reset();
-                myCounter.cancel();
-                progressTime = 0;
-                if (nowTrack == 0) {
-                    nowTrack = tracksArray.size() - 1;
-                } else {
-                    nowTrack = nowTrack - 1;
+                if (getting == true) {
+                    mediaPlayer.reset();
+                    myCounter.cancel();
+                    progressTime = 0;
+                    if (nowTrack == 0) {
+                        nowTrack = tracksArray.size() - 1;
+                    } else {
+                        nowTrack = nowTrack - 1;
+                    }
+                    playing = true;
+                    doGetSong();
                 }
-                playing = true;
-                doGetSong();
             }
 
         });
@@ -147,40 +151,43 @@ public class TrackPlayerFragment extends DialogFragment {
 
             @Override
             public void onClick(View v) {
-                mediaPlayer.reset();
-                myCounter.cancel();
-                progressTime = 0;
-                if (nowTrack == tracksArray.size() - 1) {
-                    nowTrack = 0;
-                } else {
-                    nowTrack = nowTrack + 1;
+                if(getting == true) {
+                    mediaPlayer.reset();
+                    myCounter.cancel();
+                    progressTime = 0;
+                    if (nowTrack == tracksArray.size() - 1) {
+                        nowTrack = 0;
+                    } else {
+                        nowTrack = nowTrack + 1;
+                    }
+                    playing = true;
+                    doGetSong();
                 }
-                playing = true;
-                doGetSong();
             }
 
         });
 
         final Button playButton = (Button) rootView.findViewById(R.id.button_play);
         playButton.setOnClickListener(new Button.OnClickListener() {
-
             @Override
             public void onClick(View v) {
-                if (mediaPlayer.isPlaying()) {
-                    mediaPlayer.pause();
-                    playButton.setBackgroundResource(android.R.drawable.ic_media_play);
-                    myCounter.cancel();
-                } else {
+                if (getting == true) {
+                    if (mediaPlayer.isPlaying()) {
+                        mediaPlayer.pause();
+                        playButton.setBackgroundResource(android.R.drawable.ic_media_play);
+                        myCounter.cancel();
+                    } else {
 
-                    mediaPlayer.start();
-                    if (progressTime == 30) {
-                        progressTime = 0;
+                        mediaPlayer.start();
+                        if (progressTime == 30) {
+                            progressTime = 0;
+                        }
+                        mediaPlayer.seekTo(progressTime * 1000);
+                        playButton.setBackgroundResource(android.R.drawable.ic_media_pause);
+
+                        myCounter = new MyCounter(31000 - progressTime * 1000, 1000);
+                        myCounter.start();
                     }
-                    mediaPlayer.seekTo(progressTime * 1000);
-                    playButton.setBackgroundResource(android.R.drawable.ic_media_pause);
-
-                    myCounter = new MyCounter(31000 - progressTime * 1000, 1000);
-                    myCounter.start();
                 }
             }
         });
@@ -258,6 +265,7 @@ public class TrackPlayerFragment extends DialogFragment {
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mediaPlayer.setDataSource(songUrl);
             mediaPlayer.prepareAsync();
+            getting = false;
             // might take long! (for buffering, etc)
 
         } catch (IOException e) {
